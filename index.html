@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>StoryNest — Realtime Immersive Novel Network</title>
+    <meta name="description"
+        content="Explore premium indie stories or write your own. Aesthetic reading experience designed for story lovers.">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-main: #0B090C;
+            --bg-surface: #131116;
+            --bg-card: rgba(26, 22, 30, 0.75);
+            --text-main: #F4EFF6;
+            --text-muted: #A39FA6;
+            --accent: #E0A96D;
+            --accent-glow: rgba(224, 169, 109, 0.2);
+            --border-color: rgba(255, 255, 255, 0.05);
+            --radius-premium: 16px;
+            --font-display: 'Playfair Display', serif;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.6);
+        }
+
+        [data-theme="vampire-noir"] {
+            --bg-main: #0A0204;
+            --bg-surface: #140509;
+            --bg-card: rgba(30, 10, 15, 0.75);
+            --accent: #FF3B69;
+            --accent-glow: rgba(255, 59, 105, 0.2);
+        }
+
+        [data-theme="cyber-pulse"] {
+            --bg-main: #030008;
+            --bg-surface: #0A0514;
+            --bg-card: rgba(18, 10, 32, 0.75);
+            --accent: #BB86FC;
+            --accent-glow: rgba(187, 134, 252, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.5;
+            transition: background 0.3s ease;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .serif-font {
+            font-family: var(--font-display);
+        }
+
+        .glass-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-premium);
+            backdrop-filter: blur(24px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Unified View Engine Architecture Rules */
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active-view {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            animation: viewFade 0.3s ease-out forwards;
+        }
+
+        @keyframes viewFade {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-engine {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 18px;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .search-engine:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .search-engine input {
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            width: 100%;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .search-engine input:focus {
+            outline: none;
+        }
+
+        .form-element {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: border-color 0.25s;
+            line-height: 1.6;
+        }
+
+        .form-element:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .novel-scrollway {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: none;
+            position: relative;
+        }
+
+        .novel-scrollway::-webkit-scrollbar {
+            display: none;
+        }
+
+        .novel-card {
+            min-width: 145px;
+            max-width: 145px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .novel-cover {
+            width: 145px;
+            height: 215px;
+            border-radius: 12px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .novel-cover::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            background: linear-gradient(to top, rgba(11, 9, 12, 0.95), transparent);
+        }
+
+        .novel-action-trigger {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.6);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+
+        .novel-action-trigger:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .context-menu-dock {
+            position: absolute;
+            top: 45px;
+            right: 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            width: 170px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .context-menu-dock.show-menu {
+            display: flex;
+        }
+
+        .context-menu-item {
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--accent);
+        }
+
+        .context-menu-item.delete-action {
+            color: #FF3B69;
+        }
+
+        .novel-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #111;
+            background: var(--accent);
+            padding: 3px 8px;
+            border-radius: 6px;
+            z-index: 2;
+        }
+
+        .novel-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-top: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-main);
+        }
+
+        .novel-author {
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-top: 2px;
+            text-decoration: underline;
+            cursor: pointer;
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        .novel-author:hover {
+            filter: brightness(1.2);
+        }
+
+        .genre-pill {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .genre-pill.active,
+        .genre-pill:hover {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-premium-action {
+            background: var(--accent);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px var(--accent-glow);
+            transition: all 0.3s;
+        }
+
+        .btn-premium-action:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .workspace-control-deck {
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 14px;
+            border-radius: 10px 10px 0 0;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-deck-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-deck-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+        }
+
+        .studio-text-area {
+            border-radius: 0 0 12px 12px !important;
+            resize: vertical;
+            min-height: 380px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            transition: background 0.3s ease;
+        }
+
+        /* Unified Immersive Dynamic Structural Engine Reader */
+        .reader-overlay-window {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-main);
+            z-index: 4000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .reader-overlay-window.active-reader {
+            display: flex;
+        }
+
+        .reader-header-bar {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .reader-scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 24px;
+        }
+
+        .reader-inner-frame {
+            max-width: 680px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .reader-content-body {
+            font-size: 1.15rem;
+            line-height: 1.9;
+            color: #D1C9D4;
+            margin-top: 25px;
+            letter-spacing: 0.01em;
+        }
+
+        .reader-content-body p {
+            margin-bottom: 24px;
+            text-align: justify;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(14px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active-modal {
+            display: flex;
+        }
+
+        #toast-container {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: calc(100% - 40px);
+            max-width: 380px;
+        }
+
+        .native-toast {
+            background: var(--bg-surface);
+            border: 1px solid var(--accent);
+            color: var(--text-main);
+            padding: 14px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(16px);
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toastSlide 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+        }
+
+        @keyframes toastSlide {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .panel-swatch-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .panel-swatch {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-muted);
+            transition: all 0.25s ease;
+        }
+
+        .panel-swatch.active {
+            border-color: var(--accent);
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Social Architecture Extended Metrics */
+        .card-avatar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            width: 100%;
+        }
+
+        .card-mini-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--accent);
+        }
+
+        .card-follow-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        .card-follow-btn.active-following {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .profile-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .profile-stat-box {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .profile-stat-num {
+            display: block;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: var(--font-display);
+        }
+
+        .profile-stat-lbl {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 2px;
+        }
+
+        /* ==================== SCREEN DESKTOP PLATFORM ==================== */
+        @media (min-width: 992px) {
+            .mobile-only-layout {
+                display: none !important;
+            }
+
+            .app-core-interface-wrapper {
+                display: grid;
+                grid-template-columns: 280px 1fr 340px;
+                gap: 40px;
+                padding: 40px;
+                max-width: 1750px;
+                margin: 0 auto;
+            }
+
+            .left-navigation {
+                height: calc(100vh - 80px);
+                position: sticky;
+                top: 40px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .app-identity {
+                font-size: 1.6rem;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                cursor: pointer;
+            }
+
+            .app-identity span {
+                color: var(--accent);
+                font-family: var(--font-display);
+                font-style: italic;
+            }
+
+            .nav-menu-group {
+                margin-top: 45px;
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .nav-menu-node a {
+                display: flex;
+                align-items: center;
+                gap: 18px;
+                padding: 14px 18px;
+                border-radius: 12px;
+                color: var(--text-muted);
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 0.95rem;
+            }
+
+            .nav-menu-node.active-nav a,
+            .nav-menu-node a:hover {
+                color: var(--text-main);
+                background: rgba(255, 255, 255, 0.03);
+            }
+
+            .nav-menu-node.active-nav a i {
+                color: var(--accent);
+            }
+
+            .center-story-feed {
+                display: flex;
+                flex-direction: column;
+                gap: 45px;
+            }
+
+            .hero-showcase {
+                padding: 35px;
+                border-radius: var(--radius-premium);
+                background: linear-gradient(135deg, rgba(30, 22, 35, 0.4), var(--bg-surface));
+                border-right: 3px solid var(--accent);
+            }
+
+            #toast-container {
+                bottom: unset;
+                top: 25px;
+                right: 25px;
+                left: unset;
+                transform: none;
+            }
+
+            /* Desktop Canvas Immersive Frame */
+            .reader-overlay-window {
+                background: rgba(11, 9, 12, 0.98);
+                backdrop-filter: blur(20px);
+            }
+
+            .reader-header-bar {
+                background: transparent;
+                padding: 30px 40px;
+                border-bottom: none;
+            }
+        }
+
+        /* ==================== SCREEN ANDROID PORTRAIT ==================== */
+        @media (max-width: 991px) {
+            .desktop-only-layout {
+                display: none !important;
+            }
+
+            body {
+                padding-bottom: 95px;
+            }
+
+            .app-bar-top {
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                position: sticky;
+                top: 0;
+                background: var(--bg-main);
+                backdrop-filter: blur(16px);
+                z-index: 100;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .app-core-interface-wrapper {
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .bottom-app-dock {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                height: 75px;
+                background: rgba(19, 17, 22, 0.95);
+                border-top: 1px solid var(--border-color);
+                backdrop-filter: blur(24px);
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 1000;
+            }
+
+            .dock-node {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: var(--text-muted);
+                text-decoration: none;
+                gap: 5px;
+            }
+
+            .dock-node.active-nav {
+                color: var(--accent);
+            }
+
+            .dock-node i {
+                font-size: 1.3rem;
+            }
+
+            /* Android Native Simulated Space App Canvas */
+            .reader-overlay-window {
+                background: #0F0D11;
+            }
+
+            .reader-header-bar {
+                background: #151318;
+                padding: 16px 20px;
+            }
+
+            .reader-scroll-container {
+                padding: 25px 20px;
+            }
+
+            .reader-inner-frame h1 {
+                font-size: 1.8rem !important;
+            }
+        }
+
+        a {
+            color: var(--text-link);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        /* Text selection disable */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Images drag disable */
+        img {
+            pointer-events: none;
+            -webkit-user-drag: none;
+        }
+
+        /* Links blue highlight remove */
+        a,
+        button,
+        div,
+        span {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Focus outline remove */
+        *:focus {
+            outline: none;
+        }
+
+        /* Desktop text selection block */
+        body {
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        html,
+        body {
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="toast-container"></div>
+
+    <div class="reader-overlay-window" id="canvas-reader-hub">
+        <div class="reader-header-bar">
+            <button class="btn-premium-action" onclick="closeImmersiveReader()"
+                style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 18px; box-shadow: none; border-radius: 8px;">
+                <i class="fa-solid fa-chevron-left"></i> <span class="desktop-only-layout">Close Canvas</span>
+            </button>
+            <div style="margin-left: 20px; display: flex; flex-direction: column;" class="mobile-only-layout">
+                <span style="font-size: 0.85rem; color: var(--accent); font-weight: 700;">Now Reading Native
+                    Screen</span>
+            </div>
+        </div>
+        <div class="reader-scroll-container">
+            <div class="reader-inner-frame">
+                <h1 style="font-size: 2.6rem; font-weight: 700; line-height: 1.2;" id="reader-title-lbl">Manuscript
+                    Processing...</h1>
+                <p style="color: var(--accent); font-weight: 600; margin-top: 10px; font-size: 0.95rem;"
+                    id="reader-author-lbl">By Anonymous Vector</p>
+                <div class="reader-content-body" id="reader-payload-stream"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-core-interface-wrapper">
+
+        <nav class="left-navigation desktop-only-layout" aria-label="Main Navigation">
+            <div class="app-identity" onclick="appRouter('discover')"><i class="fa-solid fa-feather-pointed"></i>
+                StoryNest<span>Hub</span></div>
+            <ul class="nav-menu-group">
+                <li class="nav-menu-node active-nav" id="d-nav-discover"><a href="javascript:void(0)"
+                        onclick="appRouter('discover')"><i class="fa-solid fa-compass"></i> Discover Hub</a></li>
+                <li class="nav-menu-node" id="d-nav-following"><a href="javascript:void(0)"
+                        onclick="appRouter('following')"><i class="fa-solid fa-users-viewfinder"></i> Following Feed</a>
+                </li>
+                <li class="nav-menu-node" id="d-nav-bookshelf"><a href="javascript:void(0)"
+                        onclick="appRouter('bookshelf')"><i class="fa-solid fa-book-open"></i> My Bookshelf</a></li>
+                <li class="nav-menu-node" id="d-nav-studio"><a href="javascript:void(0)"
+                        onclick="appRouter('studio')"><i class="fa-solid fa-wand-magic-sparkles"></i> Studio
+                        Workshop</a></li>
+                <li class="nav-menu-node" id="d-nav-bookmarks"><a href="javascript:void(0)"
+                        onclick="appRouter('bookmarks')"><i class="fa-solid fa-bookmark"></i> Bookmarks</a></li>
+                <li class="nav-menu-node" id="d-nav-settings"><a href="javascript:void(0)"
+                        onclick="appRouter('settings')"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            </ul>
+
+            <div style="margin-top: auto; display: flex; align-items: center; gap: 14px; background: var(--bg-surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); cursor: pointer;"
+                onclick="openProfileDashboard()">
+                <div class="avatar-slot-sync"><i class="fa-solid fa-circle-user"
+                        style="font-size: 2.5rem; color: var(--text-muted);"></i></div>
+                <div>
+                    <h5 style="font-size: 0.9rem; font-weight: 600;" class="username-lbl-sync">Guest Identity</h5>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);" class="status-lbl-sync">Sync Profile</p>
+                </div>
+            </div>
+        </nav>
+
+        <header class="app-bar-top mobile-only-layout">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="serif-font" style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em;"
+                    onclick="appRouter('discover')">StoryNest<span style="color:var(--accent);">.</span></span>
+                <div class="avatar-slot-sync" onclick="openProfileDashboard()"><i class="fa-solid fa-circle-user"
+                        style="font-size: 2rem; color: var(--text-muted);"></i></div>
+            </div>
+            <div class="search-engine">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="global-search-input" placeholder="Search books, authors..."
+                    oninput="executeGlobalSearch(this.value)">
+            </div>
+        </header>
+
+        <main class="center-story-feed">
+
+            <header style="display: flex; justify-content: space-between; align-items: center; width: 100%;"
+                class="desktop-only-layout">
+                <div class="search-engine" style="width: 420px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" class="global-search-input" placeholder="Search webnovels, authors, tags..."
+                        oninput="executeGlobalSearch(this.value)">
+                </div>
+                <button class="btn-premium-action" onclick="appRouter('studio')"><i class="fa-solid fa-pen-fancy"></i>
+                    Write Novel</button>
+            </header>
+
+            <div id="view-discover" class="view-section active-view">
+                <section class="glass-panel hero-showcase desktop-only-layout">
+                    <h1 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 8px;">Unleash Your Literary
+                        Imagination</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem;">Step into worlds built by indie novelists
+                        or construct your own empire of words.</p>
+                </section>
+
+                <div class="genre-pill-box mobile-only-layout"
+                    style="display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; width: 100%;">
+                    <span class="genre-pill active" onclick="filterGenre('All Genres', this)">All</span>
+                    <span class="genre-pill" onclick="filterGenre('Romance', this)">Romance</span>
+                    <span class="genre-pill" onclick="filterGenre('Fantasy', this)">Fantasy</span>
+                    <span class="genre-pill" onclick="filterGenre('Mystery', this)">Mystery</span>
+                </div>
+
+                <section class="mobile-only-layout" style="width: 100%;">
+                    <h4 class="serif-font" style="font-size: 1.2rem; margin-bottom: 16px;">Currently Immersed</h4>
+                    <div class="glass-panel" style="display: flex; gap: 16px; padding: 16px; align-items: center;">
+                        <div
+                            style="width: 55px; height: 80px; background-image: url('https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=200'); background-size: cover; border-radius: 8px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <h4 style="font-size: 0.95rem; font-weight: 600;">The Secret of Moonlight</h4>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">Chapter 12 • 5
+                                mins left</p>
+                            <div class="progress-track">
+                                <div class="progress-bar" style="width: 65%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section style="width: 100%;">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 20px; letter-spacing: 0.02em;"
+                        class="desktop-only-layout">Curated Masterpieces</h3>
+                    <h4 class="serif-font mobile-only-layout" style="font-size: 1.2rem; margin-bottom: 16px;">Trending
+                        Webnovels</h4>
+                    <div class="novel-scrollway live-novel-deck-target"></div>
+                </section>
+
+                <section class="desktop-only-layout">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 15px;">Trending Genres</h3>
+                    <div class="genre-pill-box d-pill-box" style="display:flex; gap:10px;">
+                        <span class="genre-pill active" onclick="filterGenre('All Genres', this)">All Genres</span>
+                        <span class="genre-pill" onclick="filterGenre('Romance', this)">Romance</span>
+                        <span class="genre-pill" onclick="filterGenre('Fantasy', this)">Fantasy</span>
+                        <span class="genre-pill" onclick="filterGenre('Mystery', this)">Mystery</span>
+                    </div>
+                </section>
+            </div>
+
+            <div id="view-following" class="view-section">
+                <h2 style="font-size: 1.8rem; font-weight: 700;">Following Feed</h2>
+                <p style="color: var(--text-muted); margin-bottom: 10px;">Realtime updates from authors you follow
+                    within your network.</p>
+                <div class="novel-scrollway following-feed-deck-target"
+                    style="flex-wrap: wrap; gap:25px; min-height: 100px;"></div>
+            </div>
+
+            <div id="view-bookshelf" class="view-section">
+                <h2 style="font-size: 1.8rem; font-weight: 700;">My Private Bookshelf</h2>
+                <p style="color: var(--text-muted); margin-bottom: 10px;">Access your stored tracking modules and
+                    offline novel syncs.</p>
+                <div class="novel-scrollway bookshelf-matrix-deck-target"
+                    style="flex-wrap: wrap; gap:25px; min-height: 100px;"></div>
+            </div>
+
+            <div id="view-studio" class="view-section">
+                <h2 style="font-size: 1.8rem; font-weight: 700;">Studio Workspace Core</h2>
+                <p style="color: var(--text-muted); margin-bottom: 10px;">Deploy live manuscript data matrices across
+                    decentralized cloud vectors.</p>
+                <div class="glass-panel" style="padding: 30px; display: flex; flex-direction: column;">
+                    <input type="text" id="manuscript-title" class="form-element"
+                        placeholder="Enter Manuscript Title Architecture..." style="margin-bottom: 20px;">
+
+                    <div class="workspace-control-deck">
+                        <button class="control-deck-btn" title="Bold Text" onclick="wrapTextFormatting('**')"><i
+                                class="fa-solid fa-bold"></i></button>
+                        <button class="control-deck-btn" title="Italic Text" onclick="wrapTextFormatting('*')"><i
+                                class="fa-solid fa-italic"></i></button>
+                        <button class="control-deck-btn" title="Highlight Marker" onclick="wrapTextFormatting('==')"><i
+                                class="fa-solid fa-highlighter"></i></button>
+                        <span style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);"
+                            id="live-char-counter">0 Characters</span>
+                    </div>
+                    <textarea id="manuscript-body" class="form-element studio-text-area"
+                        placeholder="Inscribe continuous story streams here..."></textarea>
+
+                    <button class="btn-premium-action" id="publish-cloud-trigger"
+                        style="width: max-content; margin-top: 25px;"><i class="fa-solid fa-cloud-arrow-up"></i> Deploy
+                        Shard To Cloud</button>
+                </div>
+            </div>
+
+            <div id="view-bookmarks" class="view-section">
+                <h2 style="font-size: 1.8rem; font-weight: 700;">Structural Bookmarks</h2>
+                <div class="glass-panel"
+                    style="padding: 30px; color: var(--text-muted); text-align: center; margin-top: 15px;">
+                    <i class="fa-regular fa-folder-open"
+                        style="font-size: 2rem; margin-bottom: 10px; display: block; color: var(--accent);"></i>
+                    No saved tracking bookmarks found inside this cache segment.
+                </div>
+            </div>
+
+            <div id="view-settings" class="view-section">
+                <h2 style="font-size: 1.8rem; font-weight: 700;">System Configuration</h2>
+                <div class="glass-panel" style="padding: 24px; margin-top: 15px;">
+                    <h4 style="font-size: 1rem; font-weight: 700;">Reading Atmosphere Rendering Engine</h4>
+                    <div class="panel-swatch-box">
+                        <div class="panel-swatch active" data-swatch="default"
+                            onclick="switchAesthetic('default', this)">Velvet Night</div>
+                        <div class="panel-swatch" data-swatch="vampire-noir"
+                            onclick="switchAesthetic('vampire-noir', this)">Crimson Noir</div>
+                        <div class="panel-swatch" data-swatch="cyber-pulse"
+                            onclick="switchAesthetic('cyber-pulse', this)">Neon Void</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-profile" class="view-section">
+                <div class="glass-panel" style="padding:30px; position:relative;">
+                    <div id="profile-action-header" style="position:absolute; top:20px; right:20px;"></div>
+                    <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+                        <div id="profile-avatar-container"></div>
+                        <div>
+                            <h2 id="profile-name-title" style="font-size:1.8rem; font-weight:700;">Profile Identity</h2>
+                            <p id="profile-email-sub" style="color:var(--text-muted); font-size:0.9rem;"></p>
+                        </div>
+                    </div>
+
+                    <div class="profile-stat-grid">
+                        <div class="profile-stat-box"><span class="profile-stat-num"
+                                id="stat-stories-count">0</span><span class="profile-stat-lbl">Stories</span></div>
+                        <div class="profile-stat-box"><span class="profile-stat-num"
+                                id="stat-followers-count">0</span><span class="profile-stat-lbl">Followers</span></div>
+                        <div class="profile-stat-box"><span class="profile-stat-num"
+                                id="stat-following-count">0</span><span class="profile-stat-lbl">Following</span></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="font-size:1.3rem; margin-bottom:15px;" id="profile-feed-heading">Published Manuscripts
+                    </h3>
+                    <div class="novel-scrollway profile-novels-deck-target" style="flex-wrap: wrap; gap:25px;"></div>
+                </div>
+            </div>
+        </main>
+
+        <aside style="display: flex; flex-direction: column; gap: 30px;" class="desktop-only-layout">
+            <div class="glass-panel" style="padding: 24px;">
+                <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 15px;">Active Novel Progress</h4>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div>
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600;">
+                            <span>The Secret of Moonlight</span><span>Ch 12 / 40</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-bar" style="width: 65%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <nav class="bottom-app-dock mobile-only-layout" aria-label="Mobile Navigation">
+        <a href="javascript:void(0)" class="dock-node active-nav" id="m-nav-discover" onclick="appRouter('discover')"><i
+                class="fa-solid fa-compass"></i><span>Discover</span></a>
+        <a href="javascript:void(0)" class="dock-node" id="m-nav-following" onclick="appRouter('following')"><i
+                class="fa-solid fa-users-viewfinder"></i><span>Following</span></a>
+        <a href="javascript:void(0)" class="dock-node" id="m-nav-bookshelf" onclick="appRouter('bookshelf')"><i
+                class="fa-solid fa-book-open"></i><span>Library</span></a>
+        <a href="javascript:void(0)" class="dock-node" id="m-nav-studio" onclick="appRouter('studio')"><i
+                class="fa-solid fa-pen-nib"></i><span>Write</span></a>
+        <a href="javascript:void(0)" class="dock-node" id="m-nav-settings" onclick="appRouter('settings')"><i
+                class="fa-solid fa-gear"></i><span>Settings</span></a>
+    </nav>
+
+    <div class="modal-overlay" id="auth-sheet-gate">
+        <div class="glass-panel"
+            style="width: 100%; max-width: 420px; padding: 35px; display: flex; flex-direction: column; gap: 20px; position: relative;">
+            <i class="fa-solid fa-xmark"
+                style="position: absolute; top: 22px; right: 22px; cursor: pointer; color: var(--text-muted); font-size: 1.2rem;"
+                onclick="closeAuthGateway()"></i>
+
+            <h3 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em;" id="auth-header-title">Initialize
+                Identity</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -15px;">Access advanced studio workspace
+                streams or explore narrative indexes as guest.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 5px;">
+                <input type="email" id="identity-email" class="form-element" placeholder="Access Email Signature...">
+                <input type="password" id="identity-secret" class="form-element" placeholder="Security Pass Phrase...">
+            </div>
+
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-top: 5px;">
+                <span style="color: var(--text-muted);" id="toggle-narration">New author setup required?</span>
+                <span style="color: var(--accent); font-weight: 700; cursor: pointer;" id="toggle-auth-action-btn"
+                    onclick="switchAuthMatrixLogic()">Create Account</span>
+            </div>
+
+            <button class="btn-premium-action" id="execute-auth-pipeline"
+                style="justify-content: center; padding: 15px; margin-top: 10px;"><i
+                    class="fa-solid fa-fingerprint"></i> Establish Active Token</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, where, getDocs, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAyKRZEAZdsOO69yl9n5nhBmuiuT9fg3Do",
+            authDomain: "story-nest-jn.firebaseapp.com",
+            projectId: "story-nest-jn",
+            storageBucket: "story-nest-jn.firebasestorage.app",
+            messagingSenderId: "883603949470",
+            appId: "1:883603949470:web:63232613a0b24987ecf88f",
+            measurementId: "G-S4VJNFKMDH"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let activeUserSession = null;
+        let isSignUpFlag = false;
+
+        window.localBookshelfCache = [];
+        window.globalLiveCacheMap = {};
+        window.rawFirebaseSnapshotArray = [];
+        window.currentGlobalSearchQuery = "";
+
+        // Social Cache Networks
+        window.globalFollowsSnapshotArray = [];
+        window.globalUsersSnapshotArray = [];
+
+        window.pushNotification = function (message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'native-toast';
+            toast.innerHTML = `<i class="fa-solid fa-circle-info" style="color: var(--accent);"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'viewFade 0.3s ease reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        };
+
+        window.openAuthGateway = () => {
+            if (activeUserSession) {
+                // If clicking profile icon while logged in, trigger dashboard natively
+                window.viewPublicOrPrivateProfile(activeUserSession.uid);
+            } else {
+                document.getElementById('auth-sheet-gate').classList.add('active-modal');
+            }
+        };
+
+        window.closeAuthGateway = () => { document.getElementById('auth-sheet-gate').classList.remove('active-modal'); };
+
+        window.switchAuthMatrixLogic = () => {
+            isSignUpFlag = !isSignUpFlag;
+            document.getElementById('auth-header-title').innerText = isSignUpFlag ? "Register New Identity" : "Initialize Identity";
+            document.getElementById('toggle-auth-action-btn').innerText = isSignUpFlag ? "Sign In Instead" : "Create Account";
+            document.getElementById('toggle-narration').innerText = isSignUpFlag ? "Existing credential records found?" : "New author setup required?";
+        };
+
+        // Sync and maintain database records for profiles
+        async function maintainUserRegistry(user) {
+            if (!user) return;
+            const userRef = doc(db, "users", user.uid);
+            await setDoc(userRef, {
+                uid: user.uid,
+                email: user.email,
+                username: user.email.split('@')[0],
+                lastActive: serverTimestamp()
+            }, { merge: true });
+        }
+
+        document.getElementById('execute-auth-pipeline').addEventListener('click', async () => {
+            const mail = document.getElementById('identity-email').value.trim();
+            const phrase = document.getElementById('identity-secret').value.trim();
+            if (!mail || !phrase) { pushNotification("Input fields cannot be left empty."); return; }
+            try {
+                if (isSignUpFlag) {
+                    const cred = await createUserWithEmailAndPassword(auth, mail, phrase);
+                    await maintainUserRegistry(cred.user);
+                    pushNotification("Identity configurations compiled successfully.");
+                } else {
+                    const cred = await signInWithEmailAndPassword(auth, mail, phrase);
+                    await maintainUserRegistry(cred.user);
+                    pushNotification("Authorization token established.");
+                }
+                closeAuthGateway();
+            } catch (err) { pushNotification(err.message); }
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            activeUserSession = user;
+            if (user) {
+                await maintainUserRegistry(user);
+            }
+            const targetName = user ? user.email.split('@')[0] : "Guest Identity";
+            const targetStatus = user ? "Cloud Active" : "Sync Profile";
+
+            document.querySelectorAll('.username-lbl-sync').forEach(el => el.innerText = targetName);
+            document.querySelectorAll('.status-lbl-sync').forEach(el => el.innerText = targetStatus);
+
+            const avatarMark = user
+                ? `<img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent);">`
+                : `<i class="fa-solid fa-circle-user" style="font-size: 2.2rem; color: var(--text-muted);"></i>`;
+
+            document.querySelectorAll('.avatar-slot-sync').forEach(el => el.innerHTML = avatarMark);
+            window.renderMasterAppDecks();
+        });
+
+        // Toggle Social Follow Pipelines securely
+        window.executeFollowToggleAction = async function (targetAuthorId, event) {
+            if (event) event.stopPropagation();
+            if (!activeUserSession) { pushNotification("Authentication required to follow authors."); document.getElementById('auth-sheet-gate').classList.add('active-modal'); return; }
+            if (activeUserSession.uid === targetAuthorId) { pushNotification("Operation invalid: Cannot track self-vectors."); return; }
+
+            const existingFollowNode = window.globalFollowsSnapshotArray.find(f => f.followerId === activeUserSession.uid && f.followingId === targetAuthorId);
+
+            if (existingFollowNode) {
+                try {
+                    await deleteDoc(doc(db, "follows", existingFollowNode.id));
+                    pushNotification("Author detached from social matrix.");
+                } catch (err) { pushNotification("Network Exception: " + err.message); }
+            } else {
+                try {
+                    await addDoc(collection(db, "follows"), {
+                        followerId: activeUserSession.uid,
+                        followingId: targetAuthorId,
+                        createdAt: new Date()
+                    });
+                    pushNotification("Author synchronized into monitoring array.");
+                } catch (err) { pushNotification("Network Exception: " + err.message); }
+            }
+        };
+
+        // Standardized Logout Deployment Endpoint
+        window.triggerCloudDisconnect = function () {
+            if (confirm("Disconnect active author stream session token?")) {
+                signOut(auth).then(() => {
+                    pushNotification("Session terminated successfully.");
+                    appRouter('discover');
+                });
+            }
+        };
+
+        // Profile Interface Routing Engine
+        window.viewPublicOrPrivateProfile = function (authorId, event) {
+            if (event) event.stopPropagation();
+            window.activeProfileTargetId = authorId;
+            appRouter('profile');
+            window.renderProfileViewSegment();
+        };
+
+        // Publish Live Stream Connector Shard
+        document.getElementById('publish-cloud-trigger').addEventListener('click', async () => {
+            if (!activeUserSession) { pushNotification("Authentication required to deploy cloud metrics."); document.getElementById('auth-sheet-gate').classList.add('active-modal'); return; }
+
+            const headerVal = document.getElementById('manuscript-title').value.trim();
+            const bodyVal = document.getElementById('manuscript-body').value.trim();
+            if (!headerVal || !bodyVal) { pushNotification("Manuscript content parameters cannot be empty."); return; }
+
+            try {
+                await addDoc(collection(db, "novels"), {
+                    title: headerVal,
+                    content: bodyVal,
+                    author: activeUserSession.email.split('@')[0],
+                    authorId: activeUserSession.uid,
+                    createdAt: new Date()
+                });
+                document.getElementById('manuscript-title').value = '';
+                document.getElementById('manuscript-body').value = '';
+                document.getElementById('live-char-counter').innerText = "0 Characters";
+                pushNotification("Novel script pushed onto cloud arrays.");
+                appRouter('discover');
+            } catch (err) { pushNotification("Process error: " + err.message); }
+        });
+
+        // Delete Execution Cluster Process
+        window.executeDeleteFromCloud = async function (docId, event) {
+            if (event) event.stopPropagation();
+            if (!activeUserSession) { pushNotification("Please log in to manage records."); return; }
+
+            const record = window.globalLiveCacheMap[docId];
+            if (!record) return;
+
+            if (record.authorId !== activeUserSession.uid) {
+                pushNotification("Access denied: Signature mismatch.");
+                return;
+            }
+
+            if (confirm("Are you absolutely sure you want to permanently delete this story?")) {
+                try {
+                    await deleteDoc(doc(db, "novels", docId));
+                    pushNotification("Manuscript deleted securely from cloud registry.");
+                    if (window.activeProfileTargetId) { window.renderProfileViewSegment(); }
+                } catch (err) { pushNotification("Deletion failed: " + err.message); }
+            }
+        };
+
+        // Realtime Listener Framework Pipelines
+        const queryPipeline = query(collection(db, "novels"), orderBy("createdAt", "desc"));
+        onSnapshot(queryPipeline, (snapshot) => {
+            window.globalLiveCacheMap = {};
+            window.rawFirebaseSnapshotArray = [];
+            snapshot.forEach((doc) => {
+                const id = doc.id;
+                const node = doc.data();
+                window.globalLiveCacheMap[id] = node;
+                window.rawFirebaseSnapshotArray.push({ id, ...node });
+            });
+            window.renderMasterAppDecks();
+            if (window.activeProfileTargetId === 'profile') { window.renderProfileViewSegment(); }
+        });
+
+        onSnapshot(collection(db, "follows"), (snapshot) => {
+            window.globalFollowsSnapshotArray = [];
+            snapshot.forEach((doc) => {
+                window.globalFollowsSnapshotArray.push({ id: doc.id, ...doc.data() });
+            });
+            window.renderMasterAppDecks();
+            if (window.activeProfileTargetId) { window.renderProfileViewSegment(); }
+        });
+
+        onSnapshot(collection(db, "users"), (snapshot) => {
+            window.globalUsersSnapshotArray = [];
+            snapshot.forEach((doc) => {
+                window.globalUsersSnapshotArray.push(doc.data());
+            });
+            if (window.activeProfileTargetId) { window.renderProfileViewSegment(); }
+        });
+
+        // Dynamic Profile Element Injector
+        window.renderProfileViewSegment = function () {
+            const targetId = window.activeProfileTargetId;
+            if (!targetId) return;
+
+            const isMe = activeUserSession && activeUserSession.uid === targetId;
+            const userRegistryNode = window.globalUsersSnapshotArray.find(u => u.uid === targetId);
+
+            const calculatedStories = window.rawFirebaseSnapshotArray.filter(n => n.authorId === targetId);
+            const calculatedFollowers = window.globalFollowsSnapshotArray.filter(f => f.followingId === targetId).length;
+            const calculatedFollowing = window.globalFollowsSnapshotArray.filter(f => f.followerId === targetId).length;
+
+            let resolvedName = isMe ? activeUserSession.email.split('@')[0] : (userRegistryNode ? userRegistryNode.username : "Indie Novelist");
+            let resolvedEmail = isMe ? activeUserSession.email : (userRegistryNode ? userRegistryNode.email : "Verified Matrix Author");
+
+            document.getElementById('profile-name-title').innerText = resolvedName;
+            document.getElementById('profile-email-sub').innerText = resolvedEmail;
+
+            document.getElementById('stat-stories-count').innerText = calculatedStories.length;
+            document.getElementById('stat-followers-count').innerText = calculatedFollowers;
+            document.getElementById('stat-following-count').innerText = calculatedFollowing;
+
+            // Render action control options on header bar
+            const headerActionsZone = document.getElementById('profile-action-header');
+            if (isMe) {
+                headerActionsZone.innerHTML = `<button class="btn-premium-action" onclick="triggerCloudDisconnect()" style="background:#FF3B69; color:#fff; box-shadow:none; padding:8px 16px; font-size:0.8rem;"><i class="fa-solid fa-power-off"></i> Disconnect</button>`;
+                document.getElementById('profile-feed-heading').innerText = "My Custom Core Shards";
+            } else {
+                const isFollowingTarget = activeUserSession && window.globalFollowsSnapshotArray.some(f => f.followerId === activeUserSession.uid && f.followingId === targetId);
+                headerActionsZone.innerHTML = `
+                    <button class="btn-premium-action ${isFollowingTarget ? 'card-follow-btn active-following' : ''}" onclick="executeFollowToggleAction('${targetId}', event)" style="box-shadow:none; padding:8px 16px; font-size:0.8rem;">
+                        <i class="fa-solid ${isFollowingTarget ? 'fa-user-check' : 'fa-user-plus'}"></i> ${isFollowingTarget ? 'Following' : 'Follow'}
+                    </button>
+                `;
+                document.getElementById('profile-feed-heading').innerText = `Manuscripts From ${resolvedName}`;
+            }
+
+            // Avatar Frame Synchronization
+            document.getElementById('profile-avatar-container').innerHTML = `
+                <div style="width:70px; height:70px; border-radius:50%; background:rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:center; border:2px solid var(--accent);">
+                    <i class="fa-solid fa-user-gear" style="font-size:2rem; color:var(--accent);"></i>
+                </div>
+            `;
+
+            // Profile Card Stream Buffer
+            let profileCardsHTML = '';
+            if (calculatedStories.length === 0) {
+                profileCardsHTML = `<p style="font-size:0.85rem; color:var(--text-muted); padding:10px 0; width:100%;">No active metrics uploaded to this space.</p>`;
+            } else {
+                calculatedStories.forEach(node => {
+                    const currentUserId = activeUserSession ? activeUserSession.uid : null;
+                    const isOwner = (node.authorId === currentUserId);
+                    const deleteNodeMarkup = isOwner ? `<div class="context-menu-item delete-action" onclick="executeDeleteFromCloud('${node.id}', event)"><i class="fa-solid fa-trash-can"></i> Delete Story</div>` : '';
+
+                    profileCardsHTML += `
+                        <article class="novel-card" onclick="openImmersiveReader('${node.id}')">
+                            <div class="novel-action-trigger" onclick="toggleContextDropdown(event, '${node.id}')">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </div>
+                            <div class="context-menu-dock" id="context-${node.id}">
+                                <div class="context-menu-item" onclick="executeSaveToDevice('${node.id}', event)"><i class="fa-solid fa-download"></i> Save to Device</div>
+                                <div class="context-menu-item" onclick="executeSaveToLibrary('${node.id}', event)"><i class="fa-solid fa-folder-plus"></i> Save to Library</div>
+                                ${deleteNodeMarkup}
+                            </div>
+                            <div class="novel-cover" style="background-image: url('https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=200')">
+                                <span class="novel-badge">Live</span>
+                            </div>
+                            <h4 class="novel-title">${node.title}</h4>
+                            <p class="novel-author" onclick="viewPublicOrPrivateProfile('${node.authorId}', event)">By ${node.author || 'Anonymous'}</p>
+                        </article>
+                    `;
+                });
+            }
+            document.querySelectorAll('.profile-novels-deck-target').forEach(deck => deck.innerHTML = profileCardsHTML);
+        };
+
+        // Universal Realtime Dual Component Data Renderer
+        window.renderMasterAppDecks = function () {
+            let processedArray = window.rawFirebaseSnapshotArray;
+            const searchKeyword = window.currentGlobalSearchQuery.toLowerCase().trim();
+
+            if (searchKeyword !== "") {
+                processedArray = processedArray.filter(item => {
+                    const tMatch = item.title ? item.title.toLowerCase().includes(searchKeyword) : false;
+                    const aMatch = item.author ? item.author.toLowerCase().includes(searchKeyword) : false;
+                    return tMatch || aMatch;
+                });
+            }
+
+            let cardsBufferHTML = '';
+            let followingFeedHTML = '';
+            const currentUserId = activeUserSession ? activeUserSession.uid : null;
+
+            // Compile lists tracking following arrays
+            const explicitFollowedAuthorIds = window.globalFollowsSnapshotArray
+                .filter(f => f.followerId === currentUserId)
+                .map(f => f.followingId);
+
+            if (processedArray.length === 0) {
+                cardsBufferHTML = `<p style="font-size:0.85rem; color:var(--text-muted); padding:10px 0; width: 100%;">No active data streams match this filter parameter.</p>`;
+            } else {
+                processedArray.forEach((node) => {
+                    const isOwner = (node.authorId === currentUserId);
+                    const deleteNodeMarkup = isOwner ? `<div class="context-menu-item delete-action" onclick="executeDeleteFromCloud('${node.id}', event)"><i class="fa-solid fa-trash-can"></i> Delete Story</div>` : '';
+
+                    // Is current user following this card's author?
+                    const isFollowingThisAuthor = window.globalFollowsSnapshotArray.some(f => f.followerId === currentUserId && f.followingId === node.authorId);
+
+                    const followButtonMarkup = (currentUserId && !isOwner)
+                        ? `<button class="card-follow-btn ${isFollowingThisAuthor ? 'active-following' : ''}" onclick="executeFollowToggleAction('${node.authorId}', event)">${isFollowingThisAuthor ? 'Following' : 'Follow'}</button>`
+                        : '';
+
+                    const genericCardCode = `
+                        <article class="novel-card" onclick="openImmersiveReader('${node.id}')">
+                            <div class="novel-action-trigger" onclick="toggleContextDropdown(event, '${node.id}')">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </div>
+                            <div class="context-menu-dock" id="context-${node.id}">
+                                <div class="context-menu-item" onclick="executeSaveToDevice('${node.id}', event)"><i class="fa-solid fa-download"></i> Save to Device</div>
+                                <div class="context-menu-item" onclick="executeSaveToLibrary('${node.id}', event)"><i class="fa-solid fa-folder-plus"></i> Save to Library</div>
+                                ${deleteNodeMarkup}
+                            </div>
+                            <div class="novel-cover" style="background-image: url('https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=200')">
+                                <span class="novel-badge">Live</span>
+                            </div>
+                            <h4 class="novel-title">${node.title}</h4>
+                            <p class="novel-author" onclick="viewPublicOrPrivateProfile('${node.authorId}', event)">By ${node.author || 'Anonymous'}</p>
+                            <div class="card-avatar-row">
+                                <img class="card-mini-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=50" alt="avatar">
+                                ${followButtonMarkup}
+                            </div>
+                        </article>
+                    `;
+
+                    cardsBufferHTML += genericCardCode;
+
+                    if (explicitFollowedAuthorIds.includes(node.authorId)) {
+                        followingFeedHTML += genericCardCode;
+                    }
+                });
+            }
+
+            if (followingFeedHTML === '') {
+                followingFeedHTML = `<p style="font-size:0.85rem; color:var(--text-muted); padding:10px 0; width: 100%;">No stories from followed authors found. Try following some writers!</p>`;
+            }
+
+            // Target structural targets synchronously without rewriting code vectors
+            document.querySelectorAll('.live-novel-deck-target').forEach(deck => {
+                deck.innerHTML = cardsBufferHTML;
+            });
+
+            document.querySelectorAll('.following-feed-deck-target').forEach(deck => {
+                deck.innerHTML = followingFeedHTML;
+            });
+
+            window.rebuildBookshelfDOM();
+            if (window.activeProfileTargetId) { window.renderProfileViewSegment(); }
+        };
+    </script>
+
+    <script>
+        // Character Tracker Element
+        document.getElementById('manuscript-body').addEventListener('input', (e) => {
+            document.getElementById('live-char-counter').innerText = `${e.target.value.length} Characters`;
+        });
+
+        // Search Synchronization Machine
+        function executeGlobalSearch(val) {
+            window.currentGlobalSearchQuery = val;
+
+            document.querySelectorAll('.global-search-input').forEach(input => {
+                if (input.value !== val) input.value = val;
+            });
+
+            if (window.renderMasterAppDecks) window.renderMasterAppDecks();
+        }
+
+        // Adaptive Canvas Native Engine Reader
+        function openImmersiveReader(docId) {
+            const record = window.globalLiveCacheMap[docId];
+            if (!record) return;
+
+            document.getElementById('reader-title-lbl').innerText = record.title;
+            document.getElementById('reader-author-lbl').innerText = `By ${record.author || 'Anonymous'}`;
+
+            const structuredParagraphs = record.content
+                .split('\n')
+                .filter(p => p.trim() !== '')
+                .map(p => `<p>${p.trim()}</p>`)
+                .join('');
+
+            document.getElementById('reader-payload-stream').innerHTML = structuredParagraphs || `<p>${record.content}</p>`;
+            document.getElementById('canvas-reader-hub').classList.add('active-reader');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImmersiveReader() {
+            document.getElementById('canvas-reader-hub').classList.remove('active-reader');
+            document.body.style.overflow = 'auto';
+        }
+
+        function toggleContextDropdown(event, docId) {
+            event.stopPropagation();
+            const targetedMenu = document.getElementById(`context-${docId}`);
+            if (!targetedMenu) return;
+            const isOpened = targetedMenu.classList.contains('show-menu');
+
+            document.querySelectorAll('.context-menu-dock').forEach(menu => menu.classList.remove('show-menu'));
+            if (!isOpened) targetedMenu.classList.add('show-menu');
+        }
+
+        window.addEventListener('click', () => {
+            document.querySelectorAll('.context-menu-dock').forEach(menu => menu.classList.remove('show-menu'));
+        });
+
+        function executeSaveToDevice(docId, event) {
+            if (event) event.stopPropagation();
+            const record = window.globalLiveCacheMap[docId];
+            if (!record) return;
+
+            const textBufferBlob = new Blob([`Title: ${record.title}\nAuthor: ${record.author || 'Anonymous'}\n\n${record.content}`], { type: "text/plain;charset=utf-8" });
+            const downloadLinkAnchor = document.createElement("a");
+
+            downloadLinkAnchor.download = `${record.title.replace(/\s+/g, '_')}_manuscript.txt`;
+            downloadLinkAnchor.href = window.URL.createObjectURL(textBufferBlob);
+            downloadLinkAnchor.click();
+            window.pushNotification("Manuscript downloaded as text mapping file.");
+        }
+
+        function executeSaveToLibrary(docId, event) {
+            if (event) event.stopPropagation();
+            const record = window.globalLiveCacheMap[docId];
+            if (!record) return;
+
+            if (window.localBookshelfCache.some(item => item.id === docId)) {
+                window.pushNotification("Novel already exists in library shelf.");
+                return;
+            }
+
+            window.localBookshelfCache.push({ id: docId, title: record.title, author: record.author });
+            window.rebuildBookshelfDOM();
+            window.pushNotification("Added securely to Private Library Shelf.");
+        }
+
+        function rebuildBookshelfDOM() {
+            let containerBlocksHTML = '';
+
+            if (window.localBookshelfCache.length === 0) {
+                containerBlocksHTML = `<p style="font-size:0.85rem; color:var(--text-muted); padding:10px 0; width:100%;">Your library shelf is empty.</p>`;
+            } else {
+                window.localBookshelfCache.forEach(item => {
+                    containerBlocksHTML += `
+                        <div class="novel-card" onclick="openImmersiveReader('${item.id}')">
+                            <div class="novel-cover" style="background-image: url('https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?q=80&w=200')">
+                                <span class="novel-badge" style="background: #3B82F6; color: #fff;">Shelf</span>
+                            </div>
+                            <h4 class="novel-title">${item.title}</h4>
+                            <p class="novel-author">By ${item.author || 'Anonymous'}</p>
+                        </div>
+                    `;
+                });
+            }
+
+            document.querySelectorAll('.bookshelf-matrix-deck-target').forEach(target => {
+                target.innerHTML = containerBlocksHTML;
+            });
+        }
+
+        function wrapTextFormatting(token) {
+            const area = document.getElementById('manuscript-body');
+            const start = area.selectionStart; const end = area.selectionEnd;
+            const targetText = area.value;
+            if (start === end) return;
+
+            const selectedChunk = targetText.substring(start, end);
+            const alteredChunk = token + selectedChunk + token;
+            area.value = targetText.substring(0, start) + alteredChunk + targetText.substring(end);
+            document.getElementById('live-char-counter').innerText = `${area.value.length} Characters`;
+        }
+
+        function filterGenre(genreType, selectionElement) {
+            document.querySelectorAll('.genre-pill').forEach(pill => {
+                if (pill.innerText.toLowerCase() === selectionElement.innerText.toLowerCase()) {
+                    pill.parentElement.querySelectorAll('.genre-pill').forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                }
+            });
+
+            if (genreType !== 'All Genres') {
+                window.pushNotification(`Filtering feed content via: ${genreType}`);
+            }
+            if (window.renderMasterAppDecks) window.renderMasterAppDecks();
+        }
+
+        function switchAesthetic(theme, element) {
+            if (theme === 'default') { document.documentElement.removeAttribute('data-theme'); }
+            else { document.documentElement.setAttribute('data-theme', theme); }
+
+            document.querySelectorAll('.panel-swatch').forEach(s => {
+                s.classList.remove('active');
+                if (s.getAttribute('data-swatch') === theme) s.classList.add('active');
+            });
+            window.pushNotification(`Atmosphere theme switched to: ${theme}`);
+        }
+
+        // Active Profile Proxy Route Gateway Controller
+        function openProfileDashboard() {
+            window.openAuthGateway();
+        }
+
+        // Operational Pure Structural App Router 
+        function appRouter(targetNodeId) {
+            // Reset profile tracking state if navigating away explicitly
+            if (targetNodeId !== 'profile') {
+                window.activeProfileTargetId = null;
+            }
+
+            // Desktop active nav configuration mapping
+            document.querySelectorAll('.nav-menu-group .nav-menu-node').forEach(node => node.classList.remove('active-nav'));
+            const dNav = document.getElementById(`d-nav-${targetNodeId}`);
+            if (dNav) dNav.classList.add('active-nav');
+
+            // Mobile active nav configurations mapping
+            document.querySelectorAll('.bottom-app-dock .dock-node').forEach(node => node.classList.remove('active-nav'));
+            const mNav = document.getElementById(`m-nav-${targetNodeId}`);
+            if (mNav) mNav.classList.add('active-nav');
+
+            // Content Visibility Management System Without innerHTML Clones
+            document.querySelectorAll('.view-section').forEach(view => {
+                view.classList.remove('active-view');
+            });
+
+            const targetedSection = document.getElementById(`view-${targetNodeId}`);
+            if (targetedSection) targetedSection.classList.add('active-view');
+        }
+    </script>
+</body>
+
+</html>
