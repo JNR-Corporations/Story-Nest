@@ -1574,6 +1574,11 @@
     </nav>
 
     <div class="modal-overlay" id="auth-sheet-gate">
+        <a href="#" class="dock-node" id="custom-install-btn" style="display: none;"
+            onclick="triggerPWAInstallation(event)">
+            <i class="fa-solid fa-download" style="color: var(--accent);"></i>
+            <span>Install App</span>
+        </a>
         <div class="glass-panel"
             style="width: 100%; max-width: 420px; padding: 35px; display: flex; flex-direction: column; gap: 20px; position: relative;">
             <i class="fa-solid fa-xmark"
@@ -2301,8 +2306,53 @@
         // Agar aapka koi theme change function hai, to usme updatePWABarThemeColor() ko call karein, ya fir ye event use karein
         window.addEventListener('DOMContentLoaded', updatePWABarThemeColor);
 
-        // Aapke purane switchAesthetic function ke andar bas ye ek line end me jod dein:
-        // updatePWABarThemeColor();
+
+        let deferredPrompt = null;
+
+        // Listen for the native PWA banner interceptor
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent default browser-managed banner execution
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Make the custom install button visible to the user instantly
+            const installBtn = document.getElementById('custom-install-btn');
+            if (installBtn) {
+                installBtn.style.display = 'flex';
+            }
+        });
+
+        // Handle manual click event on your custom layout asset button
+        function triggerPWAInstallation(event) {
+            if (event) event.preventDefault();
+
+            if (deferredPrompt) {
+                // Trigger the installation prompt
+                deferredPrompt.prompt();
+
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        window.pushNotification ? window.pushNotification('Welcome to StoryNest Premium Native App!') : console.log('User installed PWA');
+
+                        // Hide the button after successful setup pipeline execution
+                        const installBtn = document.getElementById('custom-install-btn');
+                        if (installBtn) installBtn.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                // Fallback warning fallback for rigid engines like Vivo Browser
+                alert("Your current native browser engine doesn't allow direct desktop injection. Please copy the URL and launch it inside Google Chrome to unlock the standalone edge-to-edge experience!");
+            }
+        }
+
+        // Hide button if app is running as standalone installed software environment 
+        window.addEventListener('appinstalled', () => {
+            const installBtn = document.getElementById('custom-install-btn');
+            if (installBtn) installBtn.style.display = 'none';
+            deferredPrompt = null;
+        });
+
     </script>
 </body>
 
