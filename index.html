@@ -1347,14 +1347,12 @@
 
                     <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
                         <label
-                            style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px;">MANUSCRIPT
-                            GENRE / CLASS</label>
+                            style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px;"></label>
                         <div class="custom-select-matrix-wrapper">
                             <div class="form-group"
                                 style="display: flex; flex-direction: column; gap: 8px; position: relative;">
                                 <label
-                                    style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px;">MANUSCRIPT
-                                    GENRE / CLASS</label>
+                                    style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px;"></label>
 
                                 <select id="manuscript-genre" style="display: none;">
                                     <option value="Romance">Romance</option>
@@ -1509,6 +1507,11 @@
                                 kholkar direct "Save to Device" triggers click karein txt formats file download karne ke
                                 liye.</span>
                         </div>
+                        <a href="#" class="dock-node" id="custom-install-btn" style="display: none;"
+                            onclick="triggerPWAInstallation(event)">
+                            <i class="fa-solid fa-download" style="color: var(--accent);"></i>
+                            <span>Install App</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -1574,11 +1577,7 @@
     </nav>
 
     <div class="modal-overlay" id="auth-sheet-gate">
-        <a href="#" class="dock-node" id="custom-install-btn" style="display: none;"
-            onclick="triggerPWAInstallation(event)">
-            <i class="fa-solid fa-download" style="color: var(--accent);"></i>
-            <span>Install App</span>
-        </a>
+
         <div class="glass-panel"
             style="width: 100%; max-width: 420px; padding: 35px; display: flex; flex-direction: column; gap: 20px; position: relative;">
             <i class="fa-solid fa-xmark"
@@ -2306,7 +2305,6 @@
         // Agar aapka koi theme change function hai, to usme updatePWABarThemeColor() ko call karein, ya fir ye event use karein
         window.addEventListener('DOMContentLoaded', updatePWABarThemeColor);
 
-
         let deferredPrompt = null;
 
         // Listen for the native PWA banner interceptor
@@ -2352,7 +2350,6 @@
             if (installBtn) installBtn.style.display = 'none';
             deferredPrompt = null;
         });
-
     </script>
 </body>
 
