@@ -13,6 +13,13 @@
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <link rel="manifest" href="./manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta id="pwa-theme-color" name="theme-color" content="#0B090C">
 
     <style>
         :root {
@@ -1071,6 +1078,54 @@
             color: var(--accent);
             padding-left: 18px;
             /* Smooth elegant shift effect */
+        }
+
+        /* 1. body me top safe area padding add karein */
+        body {
+            /* Aapke purane styles... */
+            padding-top: env(safe-area-inset-top, 0px);
+        }
+
+        /* 2. .bottom-app-dock (Mobile Bottom Bar) ko update karein */
+        @media (max-width: 991px) {
+            .bottom-app-dock {
+                /* Iski height ko auto-adjust karein taaki ye safe area ke andar tak stretch ho */
+                height: calc(75px + env(safe-area-inset-bottom, 0px));
+
+                /* Content ko sirf upar alignment dene ke liye */
+                display: flex;
+                justify-content: space-around;
+                align-items: flex-start;
+                padding-top: 12px;
+
+                /* Taki content iske niche se safe area me hide rahe */
+                box-sizing: border-box;
+                z-index: 1000;
+            }
+
+            /* Body ki bottom padding ko bhi bar ke according adjust karein */
+            body {
+                padding-bottom: calc(95px + env(safe-area-inset-bottom, 0px));
+            }
+
+            /* Interface wrapper ki padding me safe area add karein */
+            .app-core-interface-wrapper {
+                padding: 0 16px calc(95px + env(safe-area-inset-bottom, 0px)) 16px !important;
+                box-sizing: border-box;
+            }
+        }
+
+        /* 3. .reader-overlay-window (Immersive Reader) me safe area add karein */
+        .reader-overlay-window {
+            /* Aapke purane styles... */
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        /* 4. Toast Notification position me safe area gap dein */
+        #toast-container {
+            /* Aapke purane styles... */
+            bottom: calc(90px + env(safe-area-inset-bottom, 0px));
         }
     </style>
 </head>
@@ -2179,6 +2234,31 @@
                 trigger.classList.remove('panel-active');
             }
         });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('PWA Service Worker Registered:', reg.scope))
+                    .catch(err => console.log('Service Worker Fault:', err));
+            });
+        }
+    </script>
+
+    <script>
+        function updatePWABarThemeColor() {
+            const metaTheme = document.getElementById('pwa-theme-color');
+            const currentComputedBg = getComputedStyle(document.documentElement).getPropertyValue('--bg-main').trim();
+            if (metaTheme && currentComputedBg) {
+                metaTheme.setAttribute('content', currentComputedBg);
+            }
+        }
+
+        // Agar aapka koi theme change function hai, to usme updatePWABarThemeColor() ko call karein, ya fir ye event use karein
+        window.addEventListener('DOMContentLoaded', updatePWABarThemeColor);
+
+        // Aapke purane switchAesthetic function ke andar bas ye ek line end me jod dein:
+        // updatePWABarThemeColor();
     </script>
 </body>
 
