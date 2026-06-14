@@ -1127,6 +1127,50 @@
             /* Aapke purane styles... */
             bottom: calc(90px + env(safe-area-inset-bottom, 0px));
         }
+
+        html,
+        body {
+            /* Full screen fluid extension trick */
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-main) !important;
+            overflow-x: hidden;
+        }
+
+        body {
+            /* Top notch aur bottom gesture handles dono ko automatic control dene ke liye */
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 991px) {
+            .bottom-app-dock {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                /* Extra padding bottom use karein taaki navigation gesture line ke niche bhi background color fill rahe */
+                padding-bottom: env(safe-area-inset-bottom, 12px);
+                padding-top: 12px;
+
+                /* Height ko hardcoded calc se hata kar auto ya blend mode me dalein */
+                height: auto;
+
+                background: var(--bg-surface);
+                border-top: 1px solid var(--border-color);
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                z-index: 1000;
+                box-sizing: border-box;
+            }
+        }
     </style>
 </head>
 
