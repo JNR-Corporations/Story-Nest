@@ -8,7 +8,7 @@
   "background_color": "#0B090C",
   "theme_color": "#0B090C",
   "icons": [
-    { "src": "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=192", "sizes": "192x192", "type": "image/png" },
-    { "src": "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=512", "sizes": "512x512", "type": "image/png" }
+    { "src": "logo.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "logo.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
